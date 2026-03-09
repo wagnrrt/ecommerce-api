@@ -1,0 +1,28 @@
+{
+  "name": "ecommerce-api",
+  "version": "1.0.0",
+  "description": "REST API for ecommerce backend",
+  "keywords": [
+    "node",
+    "express",
+    "api",
+    "ecommerce"
+  ],
+  "license": "MIT",
+  "author": "wagnrrt",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jose": "^6.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2"
+  }
+}
