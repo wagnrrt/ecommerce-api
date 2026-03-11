@@ -2,6 +2,7 @@ import * as dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import UsersController from "./controllers/users.controller"
 // import routes from './routes'
 
 dotenv.config()
@@ -15,5 +16,8 @@ app.use(cors({
 }))
 app.use(helmet())
 app.use(express.json())
+
+
+app.post('/users', UsersController.create)
 
 export default app
