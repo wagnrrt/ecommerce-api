@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import UsersController from "./controllers/users.controller"
+import AuthController from "./controllers/auth.controller";
 // import routes from './routes'
 
 dotenv.config()
@@ -19,5 +20,6 @@ app.use(express.json())
 
 
 app.post('/users', UsersController.create)
+app.post('/auth/login', AuthController.login)
 
 export default app
