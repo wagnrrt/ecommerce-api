@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm"
 class ProductsController {
   async index(req: Request, res: Response) {
     try {
-      const products = await db.select().from(productsTable)
+      const products = await db.select().from(productsTable).limit(20)
 
       if (!products.length) return res.status(404).json({ message: 'no products found' })
       return res.status(200).json({ products })

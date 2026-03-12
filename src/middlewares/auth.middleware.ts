@@ -11,18 +11,18 @@ export default async function authMiddleware(
   next: NextFunction
 ) {
   try {
-    const authHeader = req.headers.authorization
+    const token = req.cookies?.token
 
-    if (!authHeader) return res.status(401).json({ error: 'token missing' })
+    if (!token) return res.status(401).json({ error: 'token missing' })
 
-    const [, token] = authHeader.split(' ')
+    console.log('aaai')
 
     const payload = await verifyToken(token)
     req.user = payload
     next()
   } catch (err) {
     console.log(err)
-    if (err.code === 'ERR_JWT_EXPIRED' || err.code === 'ERR_JWS_INVALID')
+    if (err.code === 'ERR_JWT_EXPIRED' || err.code === 'ERR_JWS_INVALID' || err.code === 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED')
       return res.status(401).json({ error: 'invalid token' })
 
     return res.status(500).json({ message: 'internal server error' })

@@ -33,7 +33,14 @@ class AuthController {
         role: foundUser.role
       })
 
-      return res.status(200).json({ token })
+      console.log(token)
+
+      return res.cookie('token', token, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 17 * 60 * 1000,
+        sameSite: 'strict'
+      }).status(200).send()
     } catch (err) {
       console.log(err)
       return res.status(500).json({ message: 'internal server error' })
