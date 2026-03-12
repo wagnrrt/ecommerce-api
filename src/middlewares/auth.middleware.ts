@@ -22,7 +22,7 @@ export default async function authMiddleware(
     next()
   } catch (err) {
     console.log(err)
-    if (err.code === 'ERR_JWT_EXPIRED')
+    if (err.code === 'ERR_JWT_EXPIRED' || err.code === 'ERR_JWS_INVALID')
       return res.status(401).json({ error: 'invalid token' })
 
     return res.status(500).json({ message: 'internal server error' })

@@ -1,6 +1,7 @@
 import { Router } from "express"
-import UsersController from "../controllers/users.controller"
 import authMiddleware from "../middlewares/auth.middleware"
+import ProductsController from "../controllers/products.controller"
+import adminMiddleware from "../middlewares/admin.middleware"
 
 const router = Router()
 
