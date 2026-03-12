@@ -8,26 +8,34 @@ import { signToken } from "../lib/jwt"
 
 class AuthController {
   async login(req: Request, res: Response) {
-    const { email, password } = loginSchema.parse(req.body)
-    const user = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.email, email))
+    try {
+      const { email, password } = loginSchema.parse(req.body)
+      const user = await db
+        .select({
+          id: usersTable.id,
+          password: usersTable.password
+        })
+        .from(usersTable)
+        .where(eq(usersTable.email, email))
 
-    const hash = user[0]?.password
+      const foundUser = user[0]
 
-    if (!hash) return res.status(404).json({ message: 'user not found' })
+      if (!foundUser) return res.status(404).json({ message: 'user not found' })
 
-    const isPasswordValid = await bcrypt.compare(password, hash)
+      const isPasswordValid = await bcrypt.compare(password, foundUser.password)
 
-    if (!isPasswordValid)
-      return res.status(401).json({ message: 'incorrect password' })
+      if (!isPasswordValid)
+        return res.status(401).json({ message: 'invalid credentials' })
 
-    const token = await signToken({
-      id: user[0]?.id
-    })
+      const token = await signToken({
+        sub: foundUser.id!
+      })
 
-    return res.status(201).json({ token })
+      return res.status(200).json({ token })
+    } catch (err) {
+      console.log(err)
+      return res.status(500).json({ message: 'internal server error' })
+    }
   }
 }
 

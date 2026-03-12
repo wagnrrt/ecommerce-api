@@ -11,26 +11,38 @@ interface AuthRequest extends Request {
 
 class UsersController {
   async me(req: AuthRequest, res: Response) {
+    try {
+      const user = await db
+        .select({
+          id: usersTable.id,
+          name: usersTable.name,
+          email: usersTable.email,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.id, req.user.id))
 
-    const user = await db
-      .select({
-        id: usersTable.id,
-        name: usersTable.name,
-        email: usersTable.email,
-      })
-      .from(usersTable)
-      .where(eq(usersTable.id, req.user.id))
-
-    return res.json({ user: user })
+      return res.json({ user: user })
+    } catch (err) {
+      console.log(err)
+      return res.status(500).json({ message: 'internal server error' })
+    }
   }
 
   async create(req: Request, res: Response) {
-    const { name, email, password } = createUserSchema.parse(req.body)
-    const hash = await bcrypt.hash(password, 10)
+    try {
+      const { name, email, password } = createUserSchema.parse(req.body)
+      const hash = await bcrypt.hash(password, 10)
 
-    await db.insert(usersTable).values({ name, email, password: hash })
+      await db.insert(usersTable).values({ name, email, password: hash })
 
-    return res.status(201).json({ name, email })
+      return res.status(201).send()
+    } catch (err) {
+      if (err.code === 'ER_DUP_ENTRY')
+        return res.status(409).json({ message: 'email already exists' })
+
+      console.log(err)
+      return res.status(500).json({ message: 'internal server error' })
+    }
   }
 }
 

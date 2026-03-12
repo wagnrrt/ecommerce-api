@@ -10,18 +10,21 @@ export default async function authMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  const authHeader = req.headers.authorization
-
-  if (!authHeader) return res.status(401).json({ error: 'token missing' })
-
-  const [, token] = authHeader.split(' ')
-
   try {
+    const authHeader = req.headers.authorization
+
+    if (!authHeader) return res.status(401).json({ error: 'token missing' })
+
+    const [, token] = authHeader.split(' ')
+
     const payload = await verifyToken(token)
     req.user = payload
     next()
   } catch (err) {
     console.log(err)
-    return res.status(401).json({ error: 'invalid token' })
+    if (err.code === 'ERR_JWT_EXPIRED')
+      return res.status(401).json({ error: 'invalid token' })
+
+    return res.status(500).json({ message: 'internal server error' })
   }
 }
