@@ -13,7 +13,8 @@ class AuthController {
       const user = await db
         .select({
           id: usersTable.id,
-          password: usersTable.password
+          password: usersTable.password,
+          role: usersTable.role
         })
         .from(usersTable)
         .where(eq(usersTable.email, email))
@@ -28,7 +29,8 @@ class AuthController {
         return res.status(401).json({ message: 'invalid credentials' })
 
       const token = await signToken({
-        sub: foundUser.id!
+        sub: foundUser.id!,
+        role: foundUser.role
       })
 
       return res.status(200).json({ token })
