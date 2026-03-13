@@ -19,7 +19,7 @@ class UsersController {
           email: usersTable.email,
         })
         .from(usersTable)
-        .where(eq(usersTable.id, req.user.id))
+        .where(eq(usersTable.id, req.user.sub))
 
       return res.json({ user: user })
     } catch (err) {

@@ -20,9 +20,9 @@ class ProductsController {
   async create(req: Request, res: Response) {
     try {
       const { name, description, price, stock } = createProductSchema.parse(req.body)
-      await db.insert(productsTable).values({ name, description, price, stock })
+      const product = await db.insert(productsTable).values({ name, description, price, stock })
 
-      return res.status(200).send()
+      return res.status(201).json({ product })
     } catch (err) {
       console.log(err)
       return res.status(500).json({ message: 'internal server error' })
@@ -35,9 +35,9 @@ class ProductsController {
       if ([name, description, price, stock].every(field => field === undefined))
         return res.status(400).json({ message: 'no field provided for update' })
 
-      await db.update(productsTable).set({ name, description, price, stock }).where(eq(productsTable.id, id))
+      const product = await db.update(productsTable).set({ name, description, price, stock }).where(eq(productsTable.id, id))
 
-      return res.status(200).send()
+      return res.status(200).json({ product })
     } catch (err) {
       console.log(err)
       return res.status(500).json({ message: 'internal server error' })

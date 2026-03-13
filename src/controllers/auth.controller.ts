@@ -21,7 +21,7 @@ class AuthController {
 
       const foundUser = user[0]
 
-      if (!foundUser) return res.status(404).json({ message: 'user not found' })
+      if (!foundUser) return res.status(404).json({ message: 'invalid credentials' })
 
       const isPasswordValid = await bcrypt.compare(password, foundUser.password)
 
@@ -38,7 +38,7 @@ class AuthController {
       return res.cookie('token', token, {
         httpOnly: true,
         secure: true,
-        maxAge: 17 * 60 * 1000,
+        maxAge: 15 * 60 * 1000,
         sameSite: 'strict'
       }).status(200).send()
     } catch (err) {
