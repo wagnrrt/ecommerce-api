@@ -15,8 +15,6 @@ export default async function authMiddleware(
 
     if (!token) return res.status(401).json({ error: 'token missing' })
 
-    console.log('aaai')
-
     const payload = await verifyToken(token)
     req.user = payload
     next()
