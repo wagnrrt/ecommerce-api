@@ -29,11 +29,13 @@ class CartController {
       const { productId, quantity } = addToCartSchema.parse(req.body)
 
       const product = await db
-        .select({ id: productsTable.id })
+        .select({ id: productsTable.id, stock: productsTable.stock })
         .from(productsTable)
         .where(eq(productsTable.id, productId))
 
       if (!product.length) return res.status(404).json({ message: 'product not found' })
+      if (product[0].stock < quantity) return res.status(404).json({ message: 'insufficient stock' })
+
       await db
         .insert(cartTable)
         .values({ userId: req.user!.sub, productId, quantity })
@@ -48,6 +50,14 @@ class CartController {
   async update(req: AuthRequest, res: Response) {
     try {
       const { productId, quantity } = updateCartSchema.parse(req.body)
+
+      const product = await db
+        .select({ id: productsTable.id, stock: productsTable.stock })
+        .from(productsTable)
+        .where(eq(productsTable.id, productId))
+
+      if (!product.length) return res.status(404).json({ message: 'product not found' })
+      if (product[0].stock < quantity) return res.status(404).json({ message: 'insufficient stock' })
 
       await db
         .update(cartTable)
