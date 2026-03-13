@@ -5,6 +5,7 @@ import bcrypt from "bcrypt"
 import { usersTable } from "../db/schema"
 import { eq } from "drizzle-orm"
 import { signToken } from "../lib/jwt"
+import { ZodError } from "zod"
 
 class AuthController {
   async login(req: Request, res: Response) {
@@ -21,7 +22,7 @@ class AuthController {
 
       const foundUser = user[0]
 
-      if (!foundUser) return res.status(404).json({ message: 'invalid credentials' })
+      if (!foundUser) return res.status(401).json({ message: 'invalid credentials' })
 
       const isPasswordValid = await bcrypt.compare(password, foundUser.password)
 
@@ -33,15 +34,15 @@ class AuthController {
         role: foundUser.role
       })
 
-      console.log(token)
-
       return res.cookie('token', token, {
         httpOnly: true,
         secure: true,
         maxAge: 15 * 60 * 1000,
         sameSite: 'strict'
-      }).status(200).send()
+      }).status(200).json({ user: { id: foundUser.id, role: foundUser.role } })
     } catch (err) {
+      if (err instanceof ZodError)
+        return res.status(400).json({ message: 'invalid input' })
       console.log(err)
       return res.status(500).json({ message: 'internal server error' })
     }

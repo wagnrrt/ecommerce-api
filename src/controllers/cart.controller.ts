@@ -3,6 +3,7 @@ import { db } from "../db"
 import { cartTable, productsTable } from "../db/schema"
 import { and, eq } from "drizzle-orm"
 import { addToCartSchema, removeFromCartSchema, updateCartSchema } from "../schemas/cart.schema"
+import { ZodError } from "zod"
 
 
 export interface AuthRequest extends Request {
@@ -42,6 +43,8 @@ class CartController {
 
       return res.status(200).send()
     } catch (err) {
+      if (err instanceof ZodError)
+        return res.status(400).json({ message: 'invalid input' })
       console.log(err)
       return res.status(500).json({ message: 'internal server error' })
     }
@@ -71,6 +74,8 @@ class CartController {
 
       return res.status(200).send()
     } catch (err) {
+      if (err instanceof ZodError)
+        return res.status(400).json({ message: 'invalid input' })
       console.log(err)
       return res.status(500).json({ message: 'internal server error' })
     }
@@ -90,6 +95,8 @@ class CartController {
 
       return res.status(200).send()
     } catch (err) {
+      if (err instanceof ZodError)
+        return res.status(400).json({ message: 'invalid input' })
       console.log(err)
       return res.status(500).json({ message: 'internal server error' })
     }

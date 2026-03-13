@@ -4,6 +4,7 @@ import { db } from "../db"
 import bcrypt from "bcrypt"
 import { usersTable } from "../db/schema"
 import { eq } from "drizzle-orm"
+import { ZodError } from "zod"
 
 interface AuthRequest extends Request {
   user?: any
@@ -21,7 +22,7 @@ class UsersController {
         .from(usersTable)
         .where(eq(usersTable.id, req.user.sub))
 
-      return res.json({ user: user })
+      return res.json({ user: user[0] })
     } catch (err) {
       console.log(err)
       return res.status(500).json({ message: 'internal server error' })
@@ -39,7 +40,8 @@ class UsersController {
     } catch (err) {
       if (err.code === 'ER_DUP_ENTRY')
         return res.status(409).json({ message: 'email already exists' })
-
+      if (err instanceof ZodError)
+        return res.status(400).json({ message: 'invalid input' })
       console.log(err)
       return res.status(500).json({ message: 'internal server error' })
     }

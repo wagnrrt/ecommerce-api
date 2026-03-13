@@ -3,6 +3,7 @@ import { db } from "../db"
 import { productsTable } from "../db/schema"
 import { createProductSchema, removeProductSchema, updateProductSchema } from "../schemas/products.schema"
 import { eq } from "drizzle-orm"
+import { ZodError } from "zod"
 
 class ProductsController {
   async index(req: Request, res: Response) {
@@ -24,6 +25,8 @@ class ProductsController {
 
       return res.status(201).json({ product })
     } catch (err) {
+      if (err instanceof ZodError)
+        return res.status(400).json({ message: 'invalid input' })
       console.log(err)
       return res.status(500).json({ message: 'internal server error' })
     }
@@ -39,6 +42,8 @@ class ProductsController {
 
       return res.status(200).json({ product })
     } catch (err) {
+      if (err instanceof ZodError)
+        return res.status(400).json({ message: 'invalid input' })
       console.log(err)
       return res.status(500).json({ message: 'internal server error' })
     }
@@ -51,6 +56,8 @@ class ProductsController {
 
       return res.status(200).send()
     } catch (err) {
+      if (err instanceof ZodError)
+        return res.status(400).json({ message: 'invalid input' })
       console.log(err)
       return res.status(500).json({ message: 'internal server error' })
     }
