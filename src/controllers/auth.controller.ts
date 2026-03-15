@@ -7,7 +7,6 @@ class AuthController {
   async login(req: Request, res: Response) {
     try {
       const { email, password } = loginSchema.parse(req.body)
-
       const { user, token } = await AuthService.login(email, password)
 
       return res.cookie('token', token, {
@@ -20,7 +19,7 @@ class AuthController {
       if (err instanceof ZodError)
         return res.status(400).json({ message: 'invalid input' })
       if (err instanceof Error && err.message === 'invalid credentials')
-        return res.status(400).json({ message: 'invalid credentials' })
+        return res.status(400).json({ message: err.message })
       console.log(err)
       return res.status(500).json({ message: 'internal server error' })
     }
