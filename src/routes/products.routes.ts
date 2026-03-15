@@ -10,7 +10,7 @@ router.get('/', ProductsController.index)
 router.use(authMiddleware, adminMiddleware)
 
 router.post('/', ProductsController.create)
-router.patch('/', ProductsController.update)
-router.delete('/', ProductsController.remove)
+router.patch('/:id', ProductsController.update)
+router.delete('/:id', ProductsController.remove)
 
 export default router

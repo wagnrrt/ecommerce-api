@@ -2,8 +2,9 @@ import { Request, Response } from "express"
 import { db } from "../db"
 import { cartTable, productsTable } from "../db/schema"
 import { and, eq } from "drizzle-orm"
-import { addToCartSchema, removeFromCartSchema, updateCartSchema } from "../schemas/cart.schema"
+import { addToCartSchema, checkoutCartSchema, removeFromCartSchema, updateCartParamsSchema, updateCartSchema } from "../schemas/cart.schema"
 import { ZodError } from "zod"
+import { stripe } from "../lib/stripe"
 
 
 export interface AuthRequest extends Request {
@@ -52,7 +53,8 @@ class CartController {
 
   async update(req: AuthRequest, res: Response) {
     try {
-      const { productId, quantity } = updateCartSchema.parse(req.body)
+      const { productId } = updateCartParamsSchema.parse(req.params.id)
+      const { quantity } = updateCartSchema.parse(req.body)
 
       const product = await db
         .select({ id: productsTable.id, stock: productsTable.stock })
@@ -83,7 +85,7 @@ class CartController {
 
   async remove(req: AuthRequest, res: Response) {
     try {
-      const { productId } = removeFromCartSchema.parse(req.body)
+      const { productId } = removeFromCartSchema.parse(req.params.id)
       await db
         .delete(cartTable)
         .where(
@@ -94,6 +96,50 @@ class CartController {
         )
 
       return res.status(200).send()
+    } catch (err) {
+      if (err instanceof ZodError)
+        return res.status(400).json({ message: 'invalid input' })
+      console.log(err)
+      return res.status(500).json({ message: 'internal server error' })
+    }
+  }
+
+  async checkout(req: AuthRequest, res: Response) {
+    try {
+      const { productId } = checkoutCartSchema.parse(req.body)
+
+      const [item] = await db
+        .select({
+          stripePriceId: productsTable.stripePriceId,
+          quantity: cartTable.quantity
+        })
+        .from(cartTable)
+        .innerJoin(
+          productsTable,
+          eq(cartTable.productId, productsTable.id)
+        )
+        .where(
+          and(
+            eq(cartTable.userId, req.user!.sub),
+            eq(cartTable.productId, productId)
+          )
+        )
+
+      if (!item)
+        return res.status(404).json({ message: "product not found" })
+
+      const session = await stripe.checkout.sessions.create({
+        ui_mode: "custom",
+        line_items: [
+          {
+            price: item.stripePriceId,
+            quantity: item.quantity,
+          },
+        ],
+        mode: 'payment',
+      });
+
+      return res.status(200).json({ sessionId: session.id })
     } catch (err) {
       if (err instanceof ZodError)
         return res.status(400).json({ message: 'invalid input' })
