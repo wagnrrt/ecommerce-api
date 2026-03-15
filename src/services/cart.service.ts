@@ -45,6 +45,8 @@ class CartService {
           eq(cartTable.productId, productId)
         )
       )
+
+    return { product }
   }
 
   async remove(productId: number, userId: string) {

@@ -25,8 +25,8 @@ class CartController {
   async add(req: AuthRequest, res: Response) {
     try {
       const { productId, quantity } = addToCartSchema.parse(req.body)
-      const item = await CartService.add(productId, quantity, req.user!.sub)
-      return res.status(201).json({ item })
+      const result = await CartService.add(productId, quantity, req.user!.sub)
+      return res.status(201).json({ product: result })
     } catch (err) {
       if (err instanceof ZodError)
         return res.status(400).json({ message: 'invalid input' })
@@ -43,8 +43,8 @@ class CartController {
     try {
       const { productId } = updateCartParamsSchema.parse(req.params.id)
       const { quantity } = updateCartSchema.parse(req.body)
-      const item = await CartService.update(productId, quantity, req.user!.sub)
-      return res.status(200).json({ item })
+      const result = await CartService.update(productId, quantity, req.user!.sub)
+      return res.status(200).json({ product: result })
     } catch (err) {
       if (err instanceof ZodError)
         return res.status(400).json({ message: 'invalid input' })

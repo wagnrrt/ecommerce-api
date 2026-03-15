@@ -19,8 +19,8 @@ class ProductsController {
   async create(req: Request, res: Response) {
     try {
       const { name, description, price, stock } = createProductSchema.parse(req.body)
-      const product = await ProductsService.create(name, description, price, stock)
-      return res.status(201).json({ product: product })
+      const result = await ProductsService.create(name, description, price, stock)
+      return res.status(201).json({ product: result })
     } catch (err) {
       if (err instanceof ZodError)
         return res.status(400).json({ message: 'invalid input' })
@@ -36,9 +36,9 @@ class ProductsController {
       if ([name, description, price, stock].every(field => field === undefined))
         return res.status(400).json({ message: 'no field provided for update' })
 
-      const product = await ProductsService.update(id, name, description, price, stock)
+      const result = await ProductsService.update(id, name, description, price, stock)
 
-      return res.status(200).json({ product: product })
+      return res.status(200).json({ product: result })
     } catch (err) {
       if (err instanceof ZodError)
         return res.status(400).json({ message: 'invalid input' })
